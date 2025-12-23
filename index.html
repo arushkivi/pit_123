@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PDF Library</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ctext y='1em' font-size='96'%3E📄%3C/text%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: light dark; }
+    .scrollbar-thin::-webkit-scrollbar { width: 8px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .scrollbar-thin.dark::-webkit-scrollbar-thumb { background: #334155; }
+    .folder-toggle { transition: transform 0.15s ease; }
+    .folder-toggle[aria-expanded='true'] { transform: rotate(90deg); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+  <div class="flex h-screen">
+    <!-- Sidebar (mobile drawer) -->
+    <div id="backdrop" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden"></div>
+    <aside id="sidebar" class="fixed md:static z-40 inset-y-0 left-0 w-80 shrink-0 border-r border-slate-200 dark:border-slate-800 p-4 overflow-y-auto scrollbar-thin bg-white dark:bg-slate-900 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-out">
+      <div class="flex items-center justify-between gap-2 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📚</span>
+          <h1 class="text-xl font-semibold">PDF Library</h1>
+        </div>
+        <button id="closeSidebar" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close sidebar">✕</button>
+      </div>
+      <div class="mb-4">
+        <input id="search" type="search" placeholder="Search PDFs or folders..." class="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-base focus:outline-none focus:ring focus:ring-blue-500" />
+      </div>
+      <nav id="tree" class="text-sm space-y-1"></nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col">
+      <header class="border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <button id="openSidebar" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Open sidebar">☰</button>
+          <div id="breadcrumbs" class="truncate text-sm text-slate-600 dark:text-slate-300"></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="toggleView" class="text-xs px-2 py-1 rounded bg-slate-200 dark:bg-slate-800" aria-pressed="false" title="Toggle list/grid view">List View</button>
+          <a href="https://github.com/arushkivi/pit_123" target="_blank" class="text-xs px-2 py-1 rounded bg-slate-200 dark:bg-slate-800">View Repo</a>
+        </div>
+      </header>
+      <section id="content" class="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin"></section>
+    </main>
+  </div>
+
+  <!-- PDF Modal -->
+  <div id="pdfModal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog">
+    <div id="pdfModalBackdrop" class="absolute inset-0 bg-black/60"></div>
+    <div class="absolute inset-2 md:inset-10 bg-white dark:bg-slate-900 rounded-lg shadow-xl flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 px-3 md:px-4 py-2">
+        <div class="min-w-0 flex-1 truncate font-medium" id="pdfModalTitle">Document</div>
+        <div class="flex items-center gap-2">
+          <a id="pdfModalDownload" class="px-3 py-1 rounded bg-blue-600 text-white text-sm hover:bg-blue-700" href="#" download>Download</a>
+          <button id="pdfModalClose" class="inline-flex items-center justify-center w-10 h-10 rounded hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <iframe id="pdfModalFrame" class="w-full flex-1" src="" title="PDF Viewer"></iframe>
+    </div>
+  </div>
+
+  <script defer src="assets/app.js"></script>
+</body>
+</html>
