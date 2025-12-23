@@ -43,34 +43,42 @@ function renderTree(node, level = 0) {
   (node.children || []).forEach(ch => {
     if (ch.type === 'folder') {
       const li = createEl('li');
-      const btn = createEl('button', 'w-full flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800');
+      const btn = createEl('button', 'group w-full flex items-center justify-between gap-2 px-3 py-2 rounded transition-transform hover:scale-[1.02] hover:bg-slate-100 dark:hover:bg-slate-800');
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         navigate('#/folder/' + encodeURIComponent(ch.path));
       });
-      const toggle = createEl('span', 'folder-toggle text-slate-500', '▶');
+      const toggle = createEl('span', 'folder-toggle text-slate-500 transition-transform', '▶');
       toggle.setAttribute('aria-expanded', 'false');
-      const name = createEl('span', 'font-medium', ch.name);
-      btn.prepend(toggle);
-      btn.append(name);
+      const name = createEl('span', 'font-medium truncate', ch.name);
+      const leftWrap = createEl('div', 'flex items-center gap-2 min-w-0');
+      leftWrap.append(toggle, name);
+      const rightIcon = createEl('span', 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors', '↗');
+      btn.append(leftWrap, rightIcon);
 
       const sub = renderTree(ch, level + 1);
       sub.style.display = 'none';
 
-      // Expand/collapse on caret click
-      btn.addEventListener('click', () => {
+      // Expand/collapse only when clicking the caret, not the whole row
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
         const expanded = sub.style.display !== 'none';
         sub.style.display = expanded ? 'none' : '';
         toggle.setAttribute('aria-expanded', String(!expanded));
-      }, { capture: true });
+      });
 
       li.append(btn, sub);
       ul.append(li);
     } else if (ch.type === 'pdf') {
       const li = createEl('li');
-      const a = createEl('a', 'block pl-8 pr-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200');
-      a.textContent = ch.name;
+      const a = createEl('a', 'group w-full flex items-center justify-between gap-2 px-3 py-2 rounded transition-transform hover:scale-[1.02] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200');
       a.href = '#/view/' + encodeURIComponent(ch.path);
+      const left = createEl('div', 'flex items-center gap-2 min-w-0');
+      const icon = createEl('span', 'text-slate-500', '📄');
+      const name = createEl('span', 'truncate', ch.name);
+      left.append(icon, name);
+      const right = createEl('span', 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors', '↗');
+      a.append(left, right);
       li.append(a);
       ul.append(li);
     }
@@ -138,23 +146,26 @@ function renderFolder(path) {
     ? createEl('div', 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5')
     : createEl('div', 'divide-y divide-slate-200 dark:divide-slate-800 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 overflow-hidden');
 
+  const subfolders = (node.children || []).filter(c => c.type === 'folder');
+  const pdfs = (node.children || []).filter(c => c.type === 'pdf');
+
   // Subfolders first
-  (node.children || []).filter(c => c.type === 'folder').forEach(f => {
+  subfolders.forEach(f => {
     if (state.view === 'grid') {
       // Make the entire folder card clickable with a gentle scale on hover
-      const card = createEl('a', 'block rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-800 text-center transition-transform hover:scale-[1.03] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500', []);
+      const card = createEl('a', 'block rounded-2xl border border-slate-200 dark:border-slate-800 p-8 bg-white/80 dark:bg-slate-800/80 backdrop-blur text-center transition transform hover:scale-[1.05] hover:shadow-lg active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500', []);
       card.href = '#/folder/' + encodeURIComponent(f.path);
-      const icon = createEl('div', 'text-4xl mb-2', '📂');
+      const icon = createEl('div', 'text-6xl mb-3', '📂');
       const name = createEl('div', 'font-medium mb-1 truncate');
       name.textContent = f.name;
-      const hint = createEl('div', 'text-xs text-slate-500 dark:text-slate-400', 'Open Folder');
+      const hint = createEl('div', 'text-sm text-slate-500 dark:text-slate-400', 'Open Folder');
       card.append(icon, name, hint);
       grid.append(card);
     } else {
       // Entire row is clickable; add subtle scale on hover
-      const row = createEl('a', 'flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded transition-transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500', []);
+      const row = createEl('a', 'flex items-center gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded-xl transition-transform hover:scale-[1.02] hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500', []);
       row.href = '#/folder/' + encodeURIComponent(f.path);
-      const icon = createEl('div', 'text-2xl', '📂');
+      const icon = createEl('div', 'text-3xl', '📂');
       const name = createEl('div', 'font-medium truncate');
       name.textContent = f.name;
       row.append(icon, name);
@@ -163,7 +174,7 @@ function renderFolder(path) {
   });
 
   // PDFs
-  (node.children || []).filter(c => c.type === 'pdf').forEach(p => {
+  pdfs.forEach(p => {
     if (state.view === 'grid') {
       const card = createEl('div', 'rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-sm bg-white dark:bg-slate-800 flex flex-col text-center');
       const icon = createEl('div', 'text-3xl mb-2', '📄');
@@ -203,7 +214,13 @@ function renderFolder(path) {
     }
   });
 
-  container.append(title, grid);
+  if (subfolders.length === 0 && pdfs.length === 0) {
+    const empty = createEl('div', 'text-center text-slate-500 dark:text-slate-400 py-16');
+    empty.textContent = 'No PDFs here yet. Folders will appear as they are added.';
+    container.append(title, empty);
+  } else {
+    container.append(title, grid);
+  }
   content.append(container);
 }
 

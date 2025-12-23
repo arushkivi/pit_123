@@ -1,0 +1,11 @@
+{
+  "name": "pdf-library-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local dev helpers for serving website_deploy/",
+  "scripts": {
+    "dev": "npx --yes serve website_deploy --listen 8080",
+    "dev:http": "npx --yes http-server website_deploy -p 8080",
+    "dev:py": "python -m http.server 8080 --directory website_deploy"
+  }
+}
