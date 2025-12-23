@@ -141,17 +141,18 @@ function renderFolder(path) {
   // Subfolders first
   (node.children || []).filter(c => c.type === 'folder').forEach(f => {
     if (state.view === 'grid') {
-      const card = createEl('div', 'rounded-xl border border-slate-200 dark:border-slate-800 p-5 hover:shadow-sm bg-white dark:bg-slate-800 text-center');
-      const icon = createEl('div', 'text-3xl mb-2', '📂');
-      const name = createEl('div', 'font-medium mb-3 truncate');
+      // Make the entire folder card clickable with a gentle scale on hover
+      const card = createEl('a', 'block rounded-xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-800 text-center transition-transform hover:scale-[1.03] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500', []);
+      card.href = '#/folder/' + encodeURIComponent(f.path);
+      const icon = createEl('div', 'text-4xl mb-2', '📂');
+      const name = createEl('div', 'font-medium mb-1 truncate');
       name.textContent = f.name;
-      const btn = createEl('a', 'inline-flex items-center justify-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline');
-      btn.textContent = 'Open Folder';
-      btn.href = '#/folder/' + encodeURIComponent(f.path);
-      card.append(icon, name, btn);
+      const hint = createEl('div', 'text-xs text-slate-500 dark:text-slate-400', 'Open Folder');
+      card.append(icon, name, hint);
       grid.append(card);
     } else {
-      const row = createEl('a', 'flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-900/50', []);
+      // Entire row is clickable; add subtle scale on hover
+      const row = createEl('a', 'flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded transition-transform hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500', []);
       row.href = '#/folder/' + encodeURIComponent(f.path);
       const icon = createEl('div', 'text-2xl', '📂');
       const name = createEl('div', 'font-medium truncate');
